@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>PDF Summarizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+       .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #1e88e5;
+            margin-bottom: 30px;
+        }
+       .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        #summary, #knowledge-graph {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        #summary h2, #knowledge-graph h2 {
+            color: #1e88e5;
+            margin-bottom: 10px;
+        }
+        #error-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Summarizer</h1>
+        <div class="form-group">
+            <label for="pdf-file">Upload PDF File:</label>
+            <input type="file" id="pdf-file" name="pdf_file" accept=".pdf">
+            <button id="generate-button" onclick="generateSummary()">Generate Summary</button>
+        </div>
+        <div id="summary_container">
+            <h2>Summary</h2>
+            <p id="summary"></p>
+            <h2>Knowledge Graph</h2>
+            <div id="knowledge_graph"></div>
+        </div>
+        <div id="progress-bar" style="display: none;">
+            <p>Progress: <span id="progress-percentage">0</span>%</p>
+            <p>Remaining Time: <span id="remaining-time">0</span> s</p>
+        </div>
+        <div id="error-popup">
+            <p>Error: Please upload a PDF file before generating a summary.</p>
+            <button onclick="closeErrorPopup()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const generateSummaryButton = document.getElementById('generate-button');
+            const pdfFileInput = document.getElementById('pdf-file');
+            const summaryContainer = document.getElementById('summary_container');
+
+            generateSummaryButton.addEventListener('click', () => {
+                const pdfFile = pdfFileInput.files[0];
+                const formData = new FormData();
+                formData.append('pdf_file', pdfFile);
+
+                fetch('/generate_summary', {
+                    method: 'POST',
+                    body: formData
+                })
+               .then(response => response.json())
+               .then(data => {
+                    const summary = data.summary;
+                    const knowledgeGraph = data.knowledge_graph;
+                    const progress = data.progress;
+                    const remainingTime = data.remaining_time;
+
+                    document.getElementById('summary').innerHTML = summary;
+                    document.getElementById('knowledge_graph').innerHTML = knowledgeGraph;
+                    // Update the progress and remaining time display
+                })
+               .catch(error => console.error(error));
+            });
+        });
+    </script>
+</body>
+</html>
